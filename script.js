@@ -1,12 +1,14 @@
 // Reverse Polish notation & Shunting yard algorithm
-const TEST = `4 * 2 / 8`;
+const TEST = `10 * 20 % ^ 5`;
+const DECIMALS = 6;
 
 const options = {
     '+': (a, b) => a + b,
     '-': (a, b) => a - b,
     '*': (a, b) => a * b,
     '/': (a, b) => a / b,
-    '^': (a, b) => a ** b
+    '^': (a, b) => a ** b,
+    '%': (a) => a / 100
 };
 
 const precedence = {
@@ -14,7 +16,8 @@ const precedence = {
     '-': 1,
     '*': 2,
     '/': 2,
-    '^': 3
+    '^': 3,
+    '%': 4
 };
 
 const toNumberArray = function (string) {
@@ -29,7 +32,7 @@ const ShuntingYard = function (array) {
     let queue = [];
 
     for (let token of array) {
-        if (token in options) {
+        if (token in options && token !== '%') {
             while (precedence[token] <= precedence[stack.at(-1)] && precedence[token] < 3) {
                 queue.push(stack.pop());
             }
@@ -57,12 +60,16 @@ const rpn = function (array) {
     let stack = [];
 
     for (let token of array) {
-        if (token in options)
-            stack.push(options[token](...stack.splice(-2)));
+        if (token in options) {
+            if (token === '%')
+                stack.push(options[token](stack.pop()));
+            else
+                stack.push(options[token](...stack.splice(-2)));
+        }
         else
             stack.push(token);
     }
-    return stack.pop();
+    return Number(stack.pop().toFixed(DECIMALS));
 }
 
 const answer = rpn(ShuntingYard(toNumberArray(TEST)));
