@@ -1,5 +1,5 @@
 // Reverse Polish notation & Shunting yard algorithm
-const TEST = `10 * 20 % ^ 5`;
+const TEST = '7 + ( 8 * 3 ^ 2 + 4)';
 const DECIMALS = 6;
 
 const options = {
@@ -8,6 +8,7 @@ const options = {
     '*': (a, b) => a * b,
     '/': (a, b) => a / b,
     '^': (a, b) => a ** b,
+    '√': (a) => a ** (1 / 2),
     '%': (a) => a / 100
 };
 
@@ -17,6 +18,7 @@ const precedence = {
     '*': 2,
     '/': 2,
     '^': 3,
+    '√': 3, // Test this!
     '%': 4
 };
 
@@ -33,7 +35,8 @@ const ShuntingYard = function (array) {
 
     for (let token of array) {
         if (token in options && token !== '%') {
-            while (precedence[token] <= precedence[stack.at(-1)] && precedence[token] < 3) {
+            // while (precedence[token] <= precedence[stack.at(-1)] && precedence[token] < 3) {
+            while (precedence[token] <= precedence[stack.at(-1)]) {
                 queue.push(stack.pop());
             }
             stack.push(token);
@@ -61,7 +64,7 @@ const rpn = function (array) {
 
     for (let token of array) {
         if (token in options) {
-            if (token === '%')
+            if (token === '%' || token === '√')
                 stack.push(options[token](stack.pop()));
             else
                 stack.push(options[token](...stack.splice(-2)));
