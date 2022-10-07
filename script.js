@@ -1,5 +1,5 @@
 // Reverse Polish notation & Shunting yard algorithm
-const TEST = '7 + ( 8 * 3 ^ 2 + 4)';
+const TEST = '√ 15 ^ 3';
 const DECIMALS = 6;
 
 const options = {
@@ -35,8 +35,7 @@ const ShuntingYard = function (array) {
 
     for (let token of array) {
         if (token in options && token !== '%') {
-            // while (precedence[token] <= precedence[stack.at(-1)] && precedence[token] < 3) {
-            while (precedence[token] <= precedence[stack.at(-1)]) {
+            while (precedence[token] <= precedence[stack.at(-1)] && precedence[token] < 3) {
                 queue.push(stack.pop());
             }
             stack.push(token);
@@ -77,3 +76,47 @@ const rpn = function (array) {
 
 const answer = rpn(ShuntingYard(toNumberArray(TEST)));
 console.log('answer: ', answer);
+
+// Color mode selector
+function toggle_mode() {
+    const toggle = {
+        light: 'dark',
+        dark: 'light',
+    };
+    const body = document.querySelector('body');
+    const token = localStorage.getItem('colorMode');
+
+    localStorage.colorMode = toggle[token];
+    body.classList.replace(`${token}-mode`, `${toggle[token]}-mode`);
+}
+
+function getTokenMouse(e) {
+    console.log(e.target);
+    // const token = document.querySelector(`.key[data-token]="${e.keyCode}"]`);
+}
+
+function getTokenKeyboard(e) {
+    console.log(e.shiftKey);
+    console.log(e.keyCode);
+    let key;
+    if (e.shiftKey === true)
+        key = document.querySelector(`.key[data-key="+shift ${e.keyCode}"]`);
+    else
+        key = document.querySelector(`.key[data-key="${e.keyCode}"]`);
+    console.log(key);
+}
+
+function resetShiftKey(e) {
+    if (e.keyCode === 16)
+        shift = true;
+}
+
+const tokens = document.querySelectorAll('.key');
+tokens.forEach(token => token.addEventListener('click', getTokenMouse));
+document.addEventListener('keydown', getTokenKeyboard);
+
+
+
+// key.classList.add('playing');
+
+// window.addEventListener('keydown', playSound);

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <meta name="description" content="A online calculator">
+    <meta name="author" content="Aaron Myburgh">
+    <script>
+        if (!localStorage.colorMode)
+            localStorage.setItem('colorMode', 'light');
+        console.log(localStorage);
+    </script>
+</head>
+
+<!-- <body class="light-mode"> -->
+
+<body>
+    <script>
+        document.querySelector('body')
+            .classList.add(`${localStorage.getItem('colorMode')}-mode`);
+    </script>
+    <!-- class="light" for light mode -->
+    <div class="blur-effect"></div>
+    <div class="container border-effect">
+        <div class="mode-container">
+            <button class="mode-button" aria-label="Toggle light/dark theme" onclick="toggle_mode()">
+                <span class="button-rail"></span>
+                <span class="button-knob">☀</span>
+            </button>
+        </div>
+        <div class="display">
+            <div class="history">
+                <div class="history-item">
+                    <div class="equation">10 x 10</div>
+                    <div class="result">100</div>
+                </div>
+                <div class="history-item">
+                    <div class="equation">10 x 10</div>
+                    <div class="result">100</div>
+                </div>
+                <div class="history-item">
+                    <div class="equation">10 x 10</div>
+                    <div class="result">100</div>
+                </div>
+            </div>
+            <div class="output">
+                <div class="equation">42 x 42</div>
+                <div class="result">= 4242</div>
+            </div>
+        </div>
+        <div class="keypad">
+            <div class="row">
+                <div class="key" role="button" data-token="c" data-key="67">C</div>
+                <div class="key" role="button" data-token="√" data-key="86">√</div>
+                <div class="key" role="button" data-token="^" data-key="shift 54">x&#696;</div>
+                <div class="key" role="button" data-token="b" data-key="8">⌫</div>
+            </div>
+            <div class="row">
+                <div class="key" role="button" data-token="%" data-key="shift 53">%</div>
+                <div class="key" role="button" data-token="(" data-key="shift 57">(</div>
+                <div class="key" role="button" data-token=")" data-key="shift 48">)</div>
+                <div class="key" role="button" data-token="/" data-key="191">&#247;</div>
+            </div>
+            <div class="row">
+                <div class="key" role="button" data-token="7" data-key="55">7</div>
+                <div class="key" role="button" data-token="8" data-key="56">8</div>
+                <div class="key" role="button" data-token="9" data-key="57">9</div>
+                <div class="key" role="button" data-token="x" data-key="shift 56">&#215;</div>
+            </div>
+            <div class="row">
+                <div class="key" role="button" data-token="4" data-key="52">4</div>
+                <div class="key" role="button" data-token="5" data-key="53">5</div>
+                <div class="key" role="button" data-token="6" data-key="54">6</div>
+                <div class="key" role="button" data-token="-" data-key="189">-</div>
+            </div>
+            <div class="row">
+                <div class="key" role="button" data-token="1" data-key="49">1</div>
+                <div class="key" role="button" data-token="2" data-key="50">2</div>
+                <div class="key" role="button" data-token="3" data-key="51">3</div>
+                <div class="key" role="button" data-token="+" data-key="shift 187">+</div>
+            </div>
+            <div class="row">
+                <div class="key" role="button" data-token="+-" data-key="192">&#177;</div>
+                <div class="key" role="button" data-token="0" data-key="48">0</div>
+                <div class="key" role="button" data-token="." data-key="190">.</div>
+                <div class="key" role="button" data-token="=" data-key="187">=</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
