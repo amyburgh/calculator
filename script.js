@@ -2,12 +2,13 @@
 const TEST = '√ 15 ^ 3';
 const DECIMALS = 6;
 
+// Default values fix single inputs
 const options = {
-    '+': (a, b) => a + b,
-    '-': (a, b) => a - b,
-    '*': (a, b) => a * b,
-    '/': (a, b) => a / b,
-    '^': (a, b) => a ** b,
+    '+': (a = 0, b = 0) => a + b,
+    '-': (a = 0, b = 0) => a - b,
+    '×': (a = 1, b = 1) => a * b,
+    '÷': (a = 1, b = 1) => a / b,
+    '^': (a, b = 1) => a ** b,
     '√': (a) => a ** (1 / 2),
     '%': (a) => a / 100
 };
@@ -15,23 +16,25 @@ const options = {
 const precedence = {
     '+': 1,
     '-': 1,
-    '*': 2,
-    '/': 2,
+    '×': 2,
+    '÷': 2,
     '^': 3,
     '√': 3, // Test this!
     '%': 4
 };
 
 const toNumberArray = function (string) {
-    return string.split(' ').map(token =>
+    return string.trim().split(' ').map(token =>
         parseFloat(token) == token ? parseFloat(token) : token
-    );
+    ).filter(item => item !== '');
 }
 
 // Shunting yard algorithm
 const ShuntingYard = function (array) {
     let stack = [];
     let queue = [];
+
+    console.log('array: ', array);
 
     for (let token of array) {
         if (token in options && token !== '%') {
@@ -74,8 +77,8 @@ const rpn = function (array) {
     return Number(stack.pop().toFixed(DECIMALS));
 }
 
-const answer = rpn(ShuntingYard(toNumberArray(TEST)));
-console.log('answer: ', answer);
+// const answer = rpn(ShuntingYard(toNumberArray(TEST)));
+// console.log('answer: ', answer);
 
 // Color mode selector
 function toggle_mode() {
@@ -90,33 +93,103 @@ function toggle_mode() {
     body.classList.replace(`${token}-mode`, `${toggle[token]}-mode`);
 }
 
-function getTokenMouse(e) {
-    console.log(e.target);
-    // const token = document.querySelector(`.key[data-token]="${e.keyCode}"]`);
-}
-
-function getTokenKeyboard(e) {
-    console.log(e.shiftKey);
-    console.log(e.keyCode);
-    let key;
-    if (e.shiftKey === true)
-        key = document.querySelector(`.key[data-key="+shift ${e.keyCode}"]`);
-    else
-        key = document.querySelector(`.key[data-key="${e.keyCode}"]`);
-    console.log(key);
-}
-
-function resetShiftKey(e) {
-    if (e.keyCode === 16)
-        shift = true;
-}
+// CALCS STUFF
+const inputArr = [];
+let userInput = '';
 
 const tokens = document.querySelectorAll('.key');
+const outputEq = document.querySelector('.output .equation');
+const outputRt = document.querySelector('.output .result');
+const historyEq = Array.from(document.querySelectorAll('.history-item .equation'));
+const historyRt = Array.from(document.querySelectorAll('.history-item .result'));
+
+const getTokenMouse = (e) => setToken(e.target.dataset.token);
+const getTokenKeyboard = (e) => {
+    let key;
+    if (e.shiftKey === true)
+        key = document.querySelector(`.key[data-key="shift ${e.keyCode}"]`);
+    else
+        key = document.querySelector(`.key[data-key="${e.keyCode}"]`);
+    if (!key) return;
+    setToken(key.dataset.token);
+    key.classList.add('key-press');
+};
+function removeTransition(e) {
+    if (e.propertyName !== 'transform') return;
+    this.classList.remove('key-press');
+}
+
 tokens.forEach(token => token.addEventListener('click', getTokenMouse));
 document.addEventListener('keydown', getTokenKeyboard);
+tokens.forEach(key => key.addEventListener('transitionend', removeTransition));
 
+const calculate = (string) => rpn(ShuntingYard(toNumberArray(string)));
 
+function setArr(array, a, b) {
+    const obj = {
+        equation: `${a}`,
+        result: `${b}`
+    }
+    array.unshift(obj);
+    if (array.length > 4)
+        array.pop();
+    // console.table(array);
+}
 
-// key.classList.add('playing');
+function setDisplay(array) {
+    outputEq.textContent = `${array[0].equation} =`;
+    outputRt.textContent = array[0].result;
+    for (let i = 0; i < 3; i++) {
+        if (!array[3 - i]) continue;
+        historyEq[i].textContent = `${array[3 - i].equation} =`;
+        historyRt[i].textContent = array[3 - i].result;
+    }
+}
 
-// window.addEventListener('keydown', playSound);
+function findToken(string) {
+    const array = string.split(' ');
+    if (string.length === 1) return true;
+
+    for (let token in precedence) {
+        if (array.includes(token))
+            return true;
+    }
+    return false;
+}
+
+let keepResult = false;
+
+function setToken(token) {
+    if (token === '=') {
+        console.log(findToken(userInput));
+        if (findToken(userInput)) {
+            setArr(inputArr, userInput, calculate(userInput));
+            setDisplay(inputArr);
+            keepResult = true;
+        }
+        userInput = outputRt.textContent;
+    }
+    else if (token === 'b') {
+        if (userInput.at(-1) === ' ')
+            userInput = userInput.slice(0, -3);
+        else
+            userInput = userInput.slice(0, -1);
+        outputRt.textContent = userInput;
+    }
+    else if (token === 'c') {
+        outputRt.textContent = '0';
+        userInput = '';
+    }
+    else if (token === '~') {
+        userInput = '- ( ' + userInput + ' ) ';
+        outputRt.textContent = userInput;
+    }
+    else {
+        if (keepResult === true && parseFloat(token)) {
+            userInput = '';
+        }
+        userInput += token;
+        outputRt.textContent = userInput;
+        keepResult = false;
+    }
+}

@@ -10,10 +10,10 @@
     <script src="script.js" defer></script>
     <meta name="description" content="A online calculator">
     <meta name="author" content="Aaron Myburgh">
+    <link rel="icon" type="image/png" href="calc_icon.png">
     <script>
         if (!localStorage.colorMode)
             localStorage.setItem('colorMode', 'light');
-        console.log(localStorage);
     </script>
 </head>
 
@@ -36,62 +36,71 @@
         <div class="display">
             <div class="history">
                 <div class="history-item">
-                    <div class="equation">10 x 10</div>
-                    <div class="result">100</div>
+                    <div class="equation"></div>
+                    <div class="result"></div>
                 </div>
                 <div class="history-item">
-                    <div class="equation">10 x 10</div>
-                    <div class="result">100</div>
+                    <div class="equation"></div>
+                    <div class="result"></div>
                 </div>
                 <div class="history-item">
-                    <div class="equation">10 x 10</div>
-                    <div class="result">100</div>
+                    <div class="equation"></div>
+                    <div class="result"></div>
                 </div>
             </div>
             <div class="output">
-                <div class="equation">42 x 42</div>
-                <div class="result">= 4242</div>
+                <div class="equation"></div>
+                <div class="result">0</div>
             </div>
         </div>
         <div class="keypad">
             <div class="row">
                 <div class="key" role="button" data-token="c" data-key="67">C</div>
-                <div class="key" role="button" data-token="√" data-key="86">√</div>
-                <div class="key" role="button" data-token="^" data-key="shift 54">x&#696;</div>
+                <div class="key" role="button" data-token=" √ " data-key="86">√</div>
+                <div class="key" role="button" data-token=" ^ " data-key="shift 54">x&#696;</div>
                 <div class="key" role="button" data-token="b" data-key="8">⌫</div>
             </div>
             <div class="row">
-                <div class="key" role="button" data-token="%" data-key="shift 53">%</div>
-                <div class="key" role="button" data-token="(" data-key="shift 57">(</div>
-                <div class="key" role="button" data-token=")" data-key="shift 48">)</div>
-                <div class="key" role="button" data-token="/" data-key="191">&#247;</div>
+                <div class="key" role="button" data-token=" % " data-key="shift 53">%</div>
+                <div class="key" role="button" data-token=" ( " data-key="shift 57">(</div>
+                <div class="key" role="button" data-token=" ) " data-key="shift 48">)</div>
+                <div class="key" role="button" data-token=" ÷ " data-key="191">÷</div>
             </div>
             <div class="row">
                 <div class="key" role="button" data-token="7" data-key="55">7</div>
                 <div class="key" role="button" data-token="8" data-key="56">8</div>
                 <div class="key" role="button" data-token="9" data-key="57">9</div>
-                <div class="key" role="button" data-token="x" data-key="shift 56">&#215;</div>
+                <div class="key" role="button" data-token=" × " data-key="shift 56s">×</div>
             </div>
             <div class="row">
                 <div class="key" role="button" data-token="4" data-key="52">4</div>
                 <div class="key" role="button" data-token="5" data-key="53">5</div>
                 <div class="key" role="button" data-token="6" data-key="54">6</div>
-                <div class="key" role="button" data-token="-" data-key="189">-</div>
+                <div class="key" role="button" data-token=" - " data-key="189">-</div>
             </div>
             <div class="row">
                 <div class="key" role="button" data-token="1" data-key="49">1</div>
                 <div class="key" role="button" data-token="2" data-key="50">2</div>
                 <div class="key" role="button" data-token="3" data-key="51">3</div>
-                <div class="key" role="button" data-token="+" data-key="shift 187">+</div>
+                <div class="key" role="button" data-token=" + " data-key="shift 187">+</div>
             </div>
             <div class="row">
-                <div class="key" role="button" data-token="+-" data-key="192">&#177;</div>
+                <div class="key" role="button" data-token="~" data-key="192">&#177;</div>
                 <div class="key" role="button" data-token="0" data-key="48">0</div>
                 <div class="key" role="button" data-token="." data-key="190">.</div>
-                <div class="key" role="button" data-token="=" data-key="187">=</div>
+                <div class="key" role="button" data-token="=" data-key="13">=</div>
             </div>
         </div>
     </div>
+    <footer>
+        <p>Copyright &copy;
+            <script>document.write(new Date().getFullYear())</script> amyburgh
+        </p>
+        <div class="github-link">
+            <a href="https://github.com/amyburgh/Rock-Paper_Scissors"><img id="Github-logo" rel="Github logo"
+                    src="GitHub-Mark-64px.png"></a>
+        </div>
+    </footer>
 </body>
 
 </html>

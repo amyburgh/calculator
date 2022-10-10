@@ -68,6 +68,14 @@ body.light-mode .container {
 
 .display {
     text-align: end;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    align-items: flex-end;
+    /* justify-items: end; */
 }
 
 .equation {
@@ -112,7 +120,8 @@ body.light-mode .result {
 
 .container {
     display: grid;
-    grid-template-rows: auto auto;
+    grid-template-rows: 0 auto max-content;
+    align-items: flex-end;
 }
 
 .keypad {
@@ -121,6 +130,9 @@ body.light-mode .result {
     gap: 20px;
     justify-content: center;
     align-items: flex-end;
+    margin-top: 20px;
+
+    /* height: fit-content; */
 }
 
 .row {
@@ -128,8 +140,6 @@ body.light-mode .result {
     grid-template-columns: repeat(4, auto);
     gap: 20px;
 }
-
-
 
 .key {
     width: 60px;
@@ -149,7 +159,8 @@ body.light-mode .result {
     transition: all .1s ease;
 }
 
-.key:active {
+.key:active,
+.key-press {
     transform: scale(1.1);
     border: 1px solid var(--orange);
     box-shadow: 0 0 1rem var(--orange);
@@ -235,7 +246,8 @@ body.dark-mode .mode-button .button-knob {
     position: absolute;
     top: -1%;
     left: -2%;
-    z-index: -1;
+    /* -1 -> -2 */
+    z-index: -2;
 
     background-image: linear-gradient(var(--rotate), var(--orange), var(--lightGrey));
     border-radius: 48px;
@@ -253,7 +265,7 @@ body.dark-mode .mode-button .button-knob {
     position: absolute;
     top: -25%;
     left: -25%;
-    z-index: -1;
+    z-index: -2;
 
     background-image: linear-gradient(var(--rotate), var(--orange), var(--lightGrey));
     filter: blur(100px);
@@ -271,5 +283,36 @@ body.dark-mode .mode-button .button-knob {
 
     100% {
         --rotate: 360deg;
+    }
+}
+
+footer {
+    position: absolute;
+    bottom: 10px;
+    display: flex;
+    gap: 10px;
+    height: 2em;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.github-link {
+    height: 2em;
+}
+
+#Github-logo {
+    height: 2em;
+
+}
+
+#Github-logo:hover {
+    transform: scale(1.2);
+    transition: 0.5s ease-in-out;
+}
+
+@media (max-height: 852px) {
+    footer {
+        display: none;
     }
 }
