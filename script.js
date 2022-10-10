@@ -1,16 +1,19 @@
-// Reverse Polish notation & Shunting yard algorithm
-const TEST = '√ 15 ^ 3';
 const DECIMALS = 6;
 
-// Default values fix single inputs
+const tokens = document.querySelectorAll('.key');
+const outputEq = document.querySelector('.output .equation');
+const outputRt = document.querySelector('.output .result');
+const historyEq = Array.from(document.querySelectorAll('.history-item .equation'));
+const historyRt = Array.from(document.querySelectorAll('.history-item .result'));
+
 const options = {
-    '+': (a = 0, b = 0) => a + b,
-    '-': (a = 0, b = 0) => a - b,
-    '×': (a = 1, b = 1) => a * b,
-    '÷': (a = 1, b = 1) => a / b,
-    '^': (a, b = 1) => a ** b,
+    '+': (a, b) => a + b,
+    '-': (a, b) => a - b,
+    '×': (a, b) => a * b,
+    '÷': (a, b) => a / b,
+    '^': (a, b) => a ** b,
     '√': (a) => a ** (1 / 2),
-    '%': (a) => a / 100
+    '%': (a = 0) => a / 100
 };
 
 const precedence = {
@@ -19,22 +22,22 @@ const precedence = {
     '×': 2,
     '÷': 2,
     '^': 3,
-    '√': 3, // Test this!
-    '%': 4
+    '√': 3,
+    '%': 4,
+    '(': 5,
+    ')': 5
 };
 
-const toNumberArray = function (string) {
-    return string.trim().split(' ').map(token =>
+const toArray = function (string) {
+    return string.split(' ').map(token =>
         parseFloat(token) == token ? parseFloat(token) : token
     ).filter(item => item !== '');
 }
 
-// Shunting yard algorithm
-const ShuntingYard = function (array) {
+/* Shunting yard algorithm - produces the postfix notation string Reverse Polish notation (RPN) */
+const shuntingYard = function (array) {
     let stack = [];
     let queue = [];
-
-    console.log('array: ', array);
 
     for (let token of array) {
         if (token in options && token !== '%') {
@@ -43,9 +46,8 @@ const ShuntingYard = function (array) {
             }
             stack.push(token);
         }
-        else if (token === '(') {
+        else if (token === '(')
             stack.push(token);
-        }
         else if (token === ')') {
             while (stack.at(-1) !== '(' && stack.length) {
                 queue.push(stack.at(-1));
@@ -53,23 +55,25 @@ const ShuntingYard = function (array) {
             }
             stack.pop();
         }
-        else {
+        else
             queue.push(token);
-        }
     }
     return [...queue, ...stack.reverse()];
 }
 
-// reverse polish notation
+/* Reverse Polish notation (RPN) - notation in which operators follow their operands e.g [3,4,+] = 7 */
 const rpn = function (array) {
+    /* if (parseFloat(array[0]) === NaN) return 'Error'; Guard against bad input */
     let stack = [];
 
     for (let token of array) {
         if (token in options) {
-            if (token === '%' || token === '√')
+            if ((token === '%' || token === '√') && stack.length)
                 stack.push(options[token](stack.pop()));
-            else
+            else if (stack.length >= 2) {
+                console.log(`%c${stack.at(-1)} ${token} ${stack.at(-2)}`, "color: yellow")
                 stack.push(options[token](...stack.splice(-2)));
+            }
         }
         else
             stack.push(token);
@@ -77,10 +81,6 @@ const rpn = function (array) {
     return Number(stack.pop().toFixed(DECIMALS));
 }
 
-// const answer = rpn(ShuntingYard(toNumberArray(TEST)));
-// console.log('answer: ', answer);
-
-// Color mode selector
 function toggle_mode() {
     const toggle = {
         light: 'dark',
@@ -93,15 +93,10 @@ function toggle_mode() {
     body.classList.replace(`${token}-mode`, `${toggle[token]}-mode`);
 }
 
-// CALCS STUFF
 const inputArr = [];
 let userInput = '';
 
-const tokens = document.querySelectorAll('.key');
-const outputEq = document.querySelector('.output .equation');
-const outputRt = document.querySelector('.output .result');
-const historyEq = Array.from(document.querySelectorAll('.history-item .equation'));
-const historyRt = Array.from(document.querySelectorAll('.history-item .result'));
+
 
 const getTokenMouse = (e) => setToken(e.target.dataset.token);
 const getTokenKeyboard = (e) => {
@@ -114,6 +109,7 @@ const getTokenKeyboard = (e) => {
     setToken(key.dataset.token);
     key.classList.add('key-press');
 };
+
 function removeTransition(e) {
     if (e.propertyName !== 'transform') return;
     this.classList.remove('key-press');
@@ -123,7 +119,14 @@ tokens.forEach(token => token.addEventListener('click', getTokenMouse));
 document.addEventListener('keydown', getTokenKeyboard);
 tokens.forEach(key => key.addEventListener('transitionend', removeTransition));
 
-const calculate = (string) => rpn(ShuntingYard(toNumberArray(string)));
+// const calculate = (string) => rpn(shuntingYard(toNumberArray(string)));
+
+function calculate(string) {
+    const array = toArray(string);
+    const syArray = shuntingYard(array);
+    const result = rpn(syArray);
+    return isFinite(result) ? result : 'Error';
+}
 
 function setArr(array, a, b) {
     const obj = {
@@ -146,24 +149,46 @@ function setDisplay(array) {
     }
 }
 
+// add string search
 function findToken(string) {
-    const array = string.split(' ');
-    if (string.length === 1) return true;
-
     for (let token in precedence) {
-        if (array.includes(token))
+        if (string.includes(token))
             return true;
     }
     return false;
+}
+
+function makeValid(string) {
+    let validString = string.at(0) === '%' ? '0' : ''; /* Edge case: (%n -to-> 0% * n) */
+
+    const format = {
+        '√': (before, after) => parseFloat(before) ? ' × √ ' : ' √ ',
+        '%': (before, after) => parseFloat(after) ? ' % × ' : ' % ',
+        '(': (before, after) => parseFloat(before) ? ' × ( ' : ' ( ',
+        ')': (before, after) => parseFloat(after) ? ' ) × ' : ' ) '
+    };
+
+    for (let i = 0; i < string.length; i++) {
+        if (string.at(i) in format && i < string.length)
+            validString += format[string.at(i)](string.at(i - 1), string.at(i + 1));
+        else
+            validString += string.at(i);
+    }
+
+    // validString = validString.trim();
+    return validString;
 }
 
 let keepResult = false;
 
 function setToken(token) {
     if (token === '=') {
-        console.log(findToken(userInput));
+        findToken(userInput) ? console.log('Token %c[found]', 'color: green') : '';
         if (findToken(userInput)) {
-            setArr(inputArr, userInput, calculate(userInput));
+            const validString = makeValid(userInput);
+            const answer = calculate(validString);
+
+            setArr(inputArr, userInput, answer);
             setDisplay(inputArr);
             keepResult = true;
         }
@@ -177,11 +202,16 @@ function setToken(token) {
         outputRt.textContent = userInput;
     }
     else if (token === 'c') {
+        if (inputArr[0])
+            outputEq.textContent = outputRt.textContent = inputArr[0].result;
         outputRt.textContent = '0';
         userInput = '';
     }
     else if (token === '~') {
-        userInput = '- ( ' + userInput + ' ) ';
+        const validString = makeValid(userInput);
+        const answer = calculate(validString) * -1;
+
+        userInput = answer.toString();
         outputRt.textContent = userInput;
     }
     else {
