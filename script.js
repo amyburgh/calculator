@@ -1,10 +1,47 @@
 const DECIMALS = 6;
 
+function toggle_mode() {
+    const toggle = {
+        light: 'dark',
+        dark: 'light',
+    };
+    const body = document.querySelector('body');
+    const token = localStorage.getItem('colorMode');
+
+    localStorage.colorMode = toggle[token];
+    body.classList.replace(`${token}-mode`, `${toggle[token]}-mode`);
+}
+
+const getTokenFromMouse = (e) => setToken(e.target.dataset.token);
+const getTokenFromKeyboard = (e) => {
+    let key;
+    if (e.shiftKey === true)
+        key = document.querySelector(`.key[data-key="shift ${e.keyCode}"]`);
+    else
+        key = document.querySelector(`.key[data-key="${e.keyCode}"]`);
+    if (!key) return;
+    setToken(key.dataset.token);
+    key.classList.add('key-press');
+};
+
+function removeTransition(e) {
+    if (e.propertyName !== 'transform') return;
+    this.classList.remove('key-press');
+}
+
 const tokens = document.querySelectorAll('.key');
 const outputEq = document.querySelector('.output .equation');
 const outputRt = document.querySelector('.output .result');
 const historyEq = Array.from(document.querySelectorAll('.history-item .equation'));
 const historyRt = Array.from(document.querySelectorAll('.history-item .result'));
+
+tokens.forEach(token => token.addEventListener('click', getTokenFromMouse));
+document.addEventListener('keydown', getTokenFromKeyboard);
+tokens.forEach(key => key.addEventListener('transitionend', removeTransition));
+
+/**
+ * Calculator Functionality
+ */
 
 const options = {
     '+': (a, b) => a + b,
@@ -71,7 +108,7 @@ const rpn = function (array) {
             if ((token === '%' || token === '√') && stack.length)
                 stack.push(options[token](stack.pop()));
             else if (stack.length >= 2) {
-                console.log(`%c${stack.at(-1)} ${token} ${stack.at(-2)}`, "color: yellow")
+                // console.log(`%c${stack.at(-1)} ${token} ${stack.at(-2)}`, "color: yellow");
                 stack.push(options[token](...stack.splice(-2)));
             }
         }
@@ -81,81 +118,11 @@ const rpn = function (array) {
     return Number(stack.pop().toFixed(DECIMALS));
 }
 
-function toggle_mode() {
-    const toggle = {
-        light: 'dark',
-        dark: 'light',
-    };
-    const body = document.querySelector('body');
-    const token = localStorage.getItem('colorMode');
-
-    localStorage.colorMode = toggle[token];
-    body.classList.replace(`${token}-mode`, `${toggle[token]}-mode`);
-}
-
-const inputArr = [];
-let userInput = '';
-
-
-
-const getTokenMouse = (e) => setToken(e.target.dataset.token);
-const getTokenKeyboard = (e) => {
-    let key;
-    if (e.shiftKey === true)
-        key = document.querySelector(`.key[data-key="shift ${e.keyCode}"]`);
-    else
-        key = document.querySelector(`.key[data-key="${e.keyCode}"]`);
-    if (!key) return;
-    setToken(key.dataset.token);
-    key.classList.add('key-press');
-};
-
-function removeTransition(e) {
-    if (e.propertyName !== 'transform') return;
-    this.classList.remove('key-press');
-}
-
-tokens.forEach(token => token.addEventListener('click', getTokenMouse));
-document.addEventListener('keydown', getTokenKeyboard);
-tokens.forEach(key => key.addEventListener('transitionend', removeTransition));
-
-// const calculate = (string) => rpn(shuntingYard(toNumberArray(string)));
-
 function calculate(string) {
     const array = toArray(string);
     const syArray = shuntingYard(array);
     const result = rpn(syArray);
     return isFinite(result) ? result : 'Error';
-}
-
-function setArr(array, a, b) {
-    const obj = {
-        equation: `${a}`,
-        result: `${b}`
-    }
-    array.unshift(obj);
-    if (array.length > 4)
-        array.pop();
-    // console.table(array);
-}
-
-function setDisplay(array) {
-    outputEq.textContent = `${array[0].equation} =`;
-    outputRt.textContent = array[0].result;
-    for (let i = 0; i < 3; i++) {
-        if (!array[3 - i]) continue;
-        historyEq[i].textContent = `${array[3 - i].equation} =`;
-        historyRt[i].textContent = array[3 - i].result;
-    }
-}
-
-// add string search
-function findToken(string) {
-    for (let token in precedence) {
-        if (string.includes(token))
-            return true;
-    }
-    return false;
 }
 
 function makeValid(string) {
@@ -174,22 +141,49 @@ function makeValid(string) {
         else
             validString += string.at(i);
     }
-
-    // validString = validString.trim();
     return validString;
 }
 
+function setDisplay(array) {
+    outputEq.textContent = `${array[0].equation} =`;
+    outputRt.textContent = array[0].result;
+    for (let i = 0; i < 3; i++) {
+        if (!array[3 - i]) continue;
+        historyEq[i].textContent = `${array[3 - i].equation} =`;
+        historyRt[i].textContent = array[3 - i].result;
+    }
+}
+
+function storeHistory(array, a, b) {
+    const obj = {
+        equation: `${a}`,
+        result: `${b}`
+    }
+    array.unshift(obj);
+    if (array.length > 4)
+        array.pop();
+}
+
+function findToken(string) {
+    for (let token in precedence) {
+        if (string.includes(token))
+            return true;
+    }
+    return false;
+}
+
+const inputArray = [];
+let userInput = '';
 let keepResult = false;
 
 function setToken(token) {
     if (token === '=') {
-        findToken(userInput) ? console.log('Token %c[found]', 'color: green') : '';
         if (findToken(userInput)) {
             const validString = makeValid(userInput);
             const answer = calculate(validString);
 
-            setArr(inputArr, userInput, answer);
-            setDisplay(inputArr);
+            storeHistory(inputArray, userInput, answer);
+            setDisplay(inputArray);
             keepResult = true;
         }
         userInput = outputRt.textContent;
@@ -202,8 +196,8 @@ function setToken(token) {
         outputRt.textContent = userInput;
     }
     else if (token === 'c') {
-        if (inputArr[0])
-            outputEq.textContent = outputRt.textContent = inputArr[0].result;
+        if (inputArray.length)
+            outputEq.textContent = inputArray[0].result;
         outputRt.textContent = '0';
         userInput = '';
     }
@@ -215,9 +209,8 @@ function setToken(token) {
         outputRt.textContent = userInput;
     }
     else {
-        if (keepResult === true && parseFloat(token)) {
+        if (keepResult === true && parseFloat(token))
             userInput = '';
-        }
         userInput += token;
         outputRt.textContent = userInput;
         keepResult = false;
