@@ -71,7 +71,7 @@ const toArray = function (string) {
     ).filter(item => item !== '');
 }
 
-/* Shunting yard algorithm - produces the postfix notation string Reverse Polish notation (RPN) */
+/* Shunting yard algorithm - produces the postfix notation, Reverse Polish notation (RPN) */
 const shuntingYard = function (array) {
     let stack = [];
     let queue = [];
