@@ -32,7 +32,6 @@ body {
     margin: 0;
     padding: 0;
     transition: background-color .5s;
-    overflow: hidden;
 }
 
 body.light-mode {
@@ -90,7 +89,6 @@ body.light-mode .result {
 .display {
     text-align: end;
     overflow: hidden;
-    /* height: 268px; */
     height: 100%;
     width: 100%;
     gap: 10px;
@@ -99,7 +97,6 @@ body.light-mode .result {
     grid-template-rows: auto min-content;
     align-items: flex-end;
 
-    /* overflow: hidden; */
     white-space: nowrap;
     text-overflow: ellipsis;
     justify-items: end;
@@ -278,10 +275,11 @@ body.dark-mode .mode-button .button-knob {
     content: "";
 
     width: 150%;
-    height: 150%;
+    height: 100%;
+    overflow: hidden;
 
     position: absolute;
-    top: -25%;
+    top: 0;
     left: -25%;
     z-index: -2;
 
