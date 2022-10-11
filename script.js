@@ -102,13 +102,13 @@ const shuntingYard = function (array) {
 const rpn = function (array) {
     /* if (parseFloat(array[0]) === NaN) return 'Error'; Guard against bad input */
     let stack = [];
-
+    console.log(array);
     for (let token of array) {
         if (token in options) {
             if ((token === '%' || token === '√') && stack.length)
                 stack.push(options[token](stack.pop()));
             else if (stack.length >= 2) {
-                // console.log(`%c${stack.at(-1)} ${token} ${stack.at(-2)}`, "color: yellow");
+                console.log(`%c${stack.at(-1)} ${token} ${stack.at(-2)}`, "color: yellow");
                 stack.push(options[token](...stack.splice(-2)));
             }
         }
@@ -129,6 +129,7 @@ function makeValid(string) {
     let validString = string.at(0) === '%' ? '0' : ''; /* Edge case: (%n -to-> 0% * n) */
 
     const format = {
+        '^': () => ' ^ ',
         '√': (before, after) => parseFloat(before) ? ' × √ ' : ' √ ',
         '%': (before, after) => parseFloat(after) ? ' % × ' : ' % ',
         '(': (before, after) => parseFloat(before) ? ' × ( ' : ' ( ',
